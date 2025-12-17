@@ -75,7 +75,7 @@ def recommend(query, useLLM):
             "assessment_url": row["url"],
             "description": row["description"],
             "test_type": row["test_type"],
-            "duration": row["duration"],
+            "duration": "Variable" if row["duration"] == "N/A" else row["duration"],
             "remote_support": row["remote_support"],
             "adaptive_support": row["adaptive_support"]
         })
