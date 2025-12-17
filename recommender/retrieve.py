@@ -1,13 +1,16 @@
-import faiss
+# recommender/retrieve.py
 import numpy as np
-from sentence_transformers import SentenceTransformer
+from recommender.state import get_state
 
-MODEL_NAME = "all-MiniLM-L6-v2"
-
-model = SentenceTransformer(MODEL_NAME)
-index = faiss.read_index("recommender/index.faiss")
 
 def retrieve(query, k=50):
+    """
+    Vector search using FAISS.
+    Model + index are lazy-loaded via state.
+    """
+    _, index, model = get_state()
+
     q_emb = model.encode([query]).astype("float32")
     _, indices = index.search(q_emb, k)
-    return indices[0]
+
+    return indices[0].tolist()
