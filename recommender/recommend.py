@@ -4,6 +4,7 @@ from recommender.retrieve import retrieve
 from recommender.intent_llm import extract_intent
 import google.generativeai as genai
 import os
+import math
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -17,10 +18,12 @@ def recommend(query, useLLM):
 
     # llM #1 — Intent extraction
     if useLLM:
+        print("LLM1 use ----------------------------------------------------------------------------")
         try:
             intent = extract_intent(query)
         except Exception:
             intent = {}
+
 
     # build augmented query for vector search
     augmented_query = query
@@ -45,6 +48,7 @@ def recommend(query, useLLM):
     selected_urls = [c["url"] for c in candidates[:5]]
 
     if useLLM:
+        print("LLM2 use ----------------------------------------------------------------------------")
         rerank_prompt = f"""
         You are selecting the most relevant SHL assessments.
 
@@ -70,12 +74,17 @@ def recommend(query, useLLM):
     final_results = []
     for url in selected_urls:
         row = df[df["url"] == url].iloc[0]
+        duration_value = row["duration"]
+
+        if pd.isna(duration_value) or str(duration_value).strip().upper() == "N/A" or str(duration_value).strip() == "":
+            duration_value = "Variable"
+
         final_results.append({
             "assessment_name": row["name"],
             "assessment_url": row["url"],
             "description": row["description"],
             "test_type": row["test_type"],
-            "duration": "Variable" if row["duration"] == "N/A" else row["duration"],
+            "duration": duration_value,
             "remote_support": row["remote_support"],
             "adaptive_support": row["adaptive_support"]
         })
