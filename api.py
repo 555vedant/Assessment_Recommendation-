@@ -16,7 +16,7 @@ def health():
 
 @app.post("/recommend")
 def recommend_api(q: Query):
-    results = recommend(q.query, False)
+    results = recommend(q.query, True)
     return {
         "query": q.query,
         "recommendations": results
